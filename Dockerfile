@@ -8,6 +8,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -ldflags="-s -w"
 RUN ls -lh
 
+
 # put the resharper binary in a scratch container
 FROM mcr.microsoft.com/dotnet/sdk:${DOT_NET_VERSION}
 ARG RESHARPER_CLI_VERSION
@@ -25,18 +26,14 @@ RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-p
   && apt-get install -y dotnet-sdk-6.0 \
   && rm -rf /var/lib/apt/lists/*
 
+
+# install jb cli(include inspectcode)
+RUN dotnet tool install JetBrains.ReSharper.GlobalTools --global --version $RESHARPER_CLI_VERSION
+
+ENV PATH $PATH:/root/.dotnet/tools
+
 RUN mkdir -p /usr/local/share/dotnet/sdk/NuGetFallbackFolder
-
-WORKDIR /resharper
-RUN \
-  curl -o resharper.zip -L "https://download.jetbrains.com/resharper/dotUltimate.$RESHARPER_CLI_VERSION/JetBrains.ReSharper.CommandLineTools.$RESHARPER_CLI_VERSION.zip" \
-  && unzip resharper.zip \
-  && rm resharper.zip \
-  && rm -rf macos-x64
-ENV PATH="/resharper:${PATH}"
-
-# this is the same as the base image
-WORKDIR /
 
 COPY --from=builder /build/resharper-action /usr/bin
 CMD resharper-action
+# CMD dotnet exec
