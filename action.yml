@@ -10,14 +10,7 @@ inputs:
   cache_home:
     description: Path to cache-home directory
     required: false
-
-# runs:
-#   using: docker
-#   image: docker://jksy/resharper-action
-#   args:
-#     - sh
-#     - -c
-#     - "ls -al demo-serverless-aspnetcore/"
+    default: /tmp/cache
 
 runs:
   using: docker
